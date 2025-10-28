@@ -119,3 +119,189 @@
 }
  =============================================================================================
  */
+
+/***
+ ______________________
+ SOLID PRINCIPLE
+ ______________________
+ Principle                          Focus                                               Benefit
+ S                               Do one thing                               Simplicity, easier testing
+ O                              Extend, don’t modify                   Flexible, future-proof
+ L                               Substitutable subclasses            Reliable inheritance
+ I                               Small interfaces                           Clean, focused design
+ D                             Depend on abstractions               Loosely coupled, testable
+ =============================================================================================
+ 🧩 Let’s explain each briefly:
+ S — Single Responsibility Principle
+
+ A class should do only one thing.
+
+ ✅ Keeps code simple, modular, and easy to maintain.
+ Example:
+ 
+ ❌ Without SRP (Bad Example)
+ class ReportManager {
+     func generateReport() {
+         print("Generating report...")
+     }
+     
+     func saveToFile() {
+         print("Saving report to file...")
+     }
+ }
+
+
+ 🛑 Problem:
+
+ This class has two responsibilities:
+
+ Generating the report
+
+ Saving the report to a file
+
+ If saving logic changes (e.g., now you need to save to a database or upload to cloud), you’d have to modify this same class — violating SRP.
+
+ ✅ With SRP (Good Example)
+ class ReportGenerator {
+     func generateReport() {
+         print("Generating report...")
+     }
+ }
+
+ class ReportSaver {
+     func saveToFile() {
+         print("Saving report to file...")
+     }
+ }
+
+
+ Now:
+
+ ReportGenerator only handles report creation.
+
+ ReportSaver only handles file saving.
+
+ Each has one reason to change — that’s the Single Responsibility Principle in action
+ =============================================================================================
+ O — Open/Closed Principle
+
+ Classes should be open for extension, but closed for modification.
+
+ ✅ You should be able to add new features without changing existing code.
+
+ Example:
+
+ protocol Payment {
+     func pay(amount: Double)
+ }
+
+ class CreditCardPayment: Payment {
+     func pay(amount: Double) { print("Paid with credit card") }
+ }
+
+ class UPIPayment: Payment {
+     func pay(amount: Double) { print("Paid with UPI") }
+ }
+
+ // Instead of editing old classes, just add new ones:
+ class CryptoPayment: Payment {
+     func pay(amount: Double) { print("Paid with crypto") }
+ }
+
+
+ No existing class changes — just extend via protocol (OCP ✅).
+ =============================================================================================
+ L — Liskov Substitution Principle
+
+ Subtypes must be replaceable for their base types without altering correctness.
+
+ ✅ A subclass should behave like its parent class expects.
+
+ Example (bad):
+
+ class Bird {
+     func fly() {}
+ }
+
+ class Penguin: Bird {
+     override func fly() {
+         fatalError("Penguins can’t fly!")
+     }
+ }
+
+
+ ❌ Violates LSP — Penguin can’t substitute Bird.
+
+ ✅ Fix: Separate interfaces:
+
+ protocol FlyingBird { func fly() }
+ protocol SwimmingBird { func swim() }
+ =============================================================================================
+ I — Interface Segregation Principle
+
+ Don’t force classes to implement unneeded methods.
+
+ ✅ Prefer many small interfaces over one big “fat” one.
+
+ Bad:
+
+ protocol Worker {
+     func work()
+     func eat()
+ }
+
+ class Robot: Worker {
+     func work() {}
+     func eat() {} // ❌ Robots don't eat
+ }
+
+
+ Good:
+
+ protocol Workable { func work() }
+ protocol Eatable { func eat() }
+
+ class Human: Workable, Eatable { ... }
+ class Robot: Workable { ... }
+ =============================================================================================
+ D — Dependency Inversion Principle
+
+ High-level modules should depend on abstractions, not concrete implementations.
+
+ ✅ Promotes loose coupling.
+
+ Bad:
+
+ class FileLogger {
+     func log(_ message: String) { print("File log:", message) }
+ }
+
+ class UserService {
+     let logger = FileLogger()
+     func createUser() { logger.log("User created") }
+ }
+
+
+ Good:
+
+ protocol Logger {
+     func log(_ message: String)
+ }
+
+ class FileLogger: Logger {
+     func log(_ message: String) { print("File log:", message) }
+ }
+
+ class UserService {
+     let logger: Logger
+     init(logger: Logger) {
+         self.logger = logger
+     }
+     func createUser() { logger.log("User created") }
+ }
+
+
+ Now you can swap FileLogger with ConsoleLogger, DatabaseLogger, etc.
+ DIP ✅ — only depends on Logger protocol, not concrete classes.
+ =============================================================================================
+ */
