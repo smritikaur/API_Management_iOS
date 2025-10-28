@@ -131,15 +131,15 @@
  I                               Small interfaces                           Clean, focused design
  D                             Depend on abstractions               Loosely coupled, testable
  =============================================================================================
- 🧩 Let’s explain each briefly:
+ Let’s explain each briefly:
  S — Single Responsibility Principle
 
  A class should do only one thing.
 
- ✅ Keeps code simple, modular, and easy to maintain.
+Keeps code simple, modular, and easy to maintain.
  Example:
  
- ❌ Without SRP (Bad Example)
+Without SRP (Bad Example)
  class ReportManager {
      func generateReport() {
          print("Generating report...")
@@ -151,7 +151,7 @@
  }
 
 
- 🛑 Problem:
+ Problem:
 
  This class has two responsibilities:
 
@@ -161,7 +161,7 @@
 
  If saving logic changes (e.g., now you need to save to a database or upload to cloud), you’d have to modify this same class — violating SRP.
 
- ✅ With SRP (Good Example)
+With SRP (Good Example)
  class ReportGenerator {
      func generateReport() {
          print("Generating report...")
@@ -187,7 +187,7 @@
 
  Classes should be open for extension, but closed for modification.
 
- ✅ You should be able to add new features without changing existing code.
+You should be able to add new features without changing existing code.
 
  Example:
 
@@ -209,13 +209,13 @@
  }
 
 
- No existing class changes — just extend via protocol (OCP ✅).
+ No existing class changes — just extend via protocol (OCP ).
  =============================================================================================
  L — Liskov Substitution Principle
 
  Subtypes must be replaceable for their base types without altering correctness.
 
- ✅ A subclass should behave like its parent class expects.
+A subclass should behave like its parent class expects.
 
  Example (bad):
 
@@ -230,9 +230,9 @@
  }
 
 
- ❌ Violates LSP — Penguin can’t substitute Bird.
+Violates LSP — Penguin can’t substitute Bird.
 
- ✅ Fix: Separate interfaces:
+Fix: Separate interfaces:
 
  protocol FlyingBird { func fly() }
  protocol SwimmingBird { func swim() }
@@ -241,7 +241,7 @@
 
  Don’t force classes to implement unneeded methods.
 
- ✅ Prefer many small interfaces over one big “fat” one.
+Prefer many small interfaces over one big “fat” one.
 
  Bad:
 
@@ -252,7 +252,7 @@
 
  class Robot: Worker {
      func work() {}
-     func eat() {} // ❌ Robots don't eat
+     func eat() {} //  Robots don't eat
  }
 
 
@@ -268,7 +268,7 @@
 
  High-level modules should depend on abstractions, not concrete implementations.
 
- ✅ Promotes loose coupling.
+ Promotes loose coupling.
 
  Bad:
 
@@ -302,6 +302,6 @@
 
 
  Now you can swap FileLogger with ConsoleLogger, DatabaseLogger, etc.
- DIP ✅ — only depends on Logger protocol, not concrete classes.
+ DIP  — only depends on Logger protocol, not concrete classes.
  =============================================================================================
  */
