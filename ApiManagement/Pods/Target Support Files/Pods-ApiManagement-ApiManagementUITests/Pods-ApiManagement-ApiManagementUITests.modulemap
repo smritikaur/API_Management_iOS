@@ -1,6 +1,0 @@
-framework module Pods_ApiManagement_ApiManagementUITests {
-  umbrella header "Pods-ApiManagement-ApiManagementUITests-umbrella.h"
-
-  export *
-  module * { export * }
-}
