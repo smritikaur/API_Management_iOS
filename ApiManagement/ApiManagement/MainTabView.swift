@@ -8,18 +8,22 @@
 import SwiftUI
 
 struct MainTabView: View {
+    @State var selectedTab = 0
+    
     var body: some View {
-        TabView {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
+        TabView(selection: $selectedTab) {
+            HomeTab(buttonText: "Get Pexels Data", navigationTitle: "Home")
                 .tabItem {
+                    Image(systemName: "house.fill")
                     Text("Home")
                 }
-            Text("Downloads")
+                .tag(0)
+            DownloadsTab(maintext: "Downloads")
                 .tabItem {
+                    Image(systemName: "arrow.down.circle.fill")
                     Text("Downloads")
                 }
+                .tag(1)
         }
     }
 }
