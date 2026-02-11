@@ -305,3 +305,67 @@ Prefer many small interfaces over one big “fat” one.
  DIP  — only depends on Logger protocol, not concrete classes.
  =============================================================================================
  */
+
+
+
+//MARK: SWIFTUI
+/**
+ - Every swiftUi view has a framewhose height, width and alignment can be set
+ - SwiftUI is a procedural language that is goes from top to bottom. So, the bottommost element is at the bottom and top at top. Like in the below code:
+ 
+ Text("Downloads")
+     .background(Color.blue)
+     .frame(width: 100, height: 100, alignment: .center)
+     .background(Color.green)
+     .frame(width: 120, height: 120, alignment: .center)
+     .background(Color.yellow)
+ 
+ Downloads text is at the topmost position and behind it we have blue frame and the behind that blue frame we have green frame an at the bottom most position we have yellow frame.
+ 
+ - Frame is the container that contains the content and helps in positioning the view.
+ */
+
+
+/**
+ struct A {
+ //variables
+ //contentLayer
+ subViewCall
+ }
+ 
+ subView
+ */
+
+//MARK: NavigationView and NavigationLinks
+
+/**
+ The screen that appears on using NavigationLink is ultimately under NavigationView therefore we do not need to embed that screen again in NavigationView to set the title and all it can be automatically set by diurectly setting .navigationTitle.
+ 
+ In the SecondScreen if we don't want default back button we ca hide the navigationBar by using .navigationBarHidden(true) and set your own Back button using Environment presentation mode.
+ */
+
+//MARK: @State
+/**
+ @State property wrapper tells the view to observe the state of the variable so that if it changes then the view needs to update itself.
+ */
+
+//MARK: List
+/**
+ - similar list items ca be categorised into sections
+ - how its differernt from vstack is that we can add feature swipe to delete easily by using .onDelete modifier
+ function implementation should be outside the view
+ - Can embed List inside NavigationView - Use other modifiers like .onDelete, .move, add default EditButton inside naviagtion bar item
+ -use listRowBackground to change the background color of each cell of the list
+ 
+ */
+
+//MARK: DEBUG TIP
+/**
+ While getting nil in api response try printing the response in console in Alamofire to know the exact error.
+ */
+
+//MARK: AsyncImage
+/**
+ To show image downloaded from server use AsyncImage
+ to make the image fit in its container use .clipped.
+ */
