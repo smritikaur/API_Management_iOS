@@ -1,0 +1,15 @@
+//
+//  HomeTabViewModel.swift
+//  ApiManagement
+//
+//  Created by singsys on 11/02/26.
+//
+
+import Foundation
+
+struct VideoItem: Identifiable, Hashable {
+    let id = UUID()
+    let name: String
+    let link: String
+    let videoPicture: String
+}

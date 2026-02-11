@@ -327,9 +327,4 @@ class JSONAny: Codable {
 
 
 
-struct VideoItem: Identifiable, Hashable {
-    let id = UUID()
-    let name: String
-    let link: String
-    let videoPicture: String
-}
+
