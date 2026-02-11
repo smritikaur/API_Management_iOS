@@ -18,46 +18,49 @@ struct HomeTab: View {
     
     var body: some View {
         NavigationView {
-            List {
-                ForEach(videos){ video in
-                    HStack {
-                        AsyncImage(url: URL(string: video.videoPicture), scale: 1)
-                        { image in
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .aspectRatio(contentMode: .fill)
-                                .clipped()
-                                .frame(width: 50, height: 30)
+            GeometryReader { geometry in
+                List {
+                    ForEach(videos){ video in
+                        HStack {
+                            AsyncImage(url: URL(string: video.videoPicture), scale: 1)
+                            { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                                    .aspectRatio(contentMode: .fill)
+                                    .clipped()
+                                    .frame(width: geometry.size.width * 0.3, height: geometry.size.height * 0.2)
+                            } placeholder: {
+                                ProgressView().progressViewStyle(.circular)
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
                             
-                        } placeholder: { ProgressView().progressViewStyle(.circular)
+                            VStack(alignment: .leading) {
+                                Text(video.name)
+                                    .font(.headline)
+                                Text(video.link)
+                                Text(video.videoPicture)
+                            }
+                            .frame(width: geometry.size.width * 0.5, height: geometry.size.height * 0.2)
+                            .clipped()
                         }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding()
-                        
-                        VStack {
-                            Text(video.name)
-                                .font(.headline)
-                                .background(Color.green)
-                            Text(video.link)
-                                .frame(width: 210, height: 20, alignment: .center)
-                                .background(Color.blue)
-                            Text(video.videoPicture)
-                                .frame(width: 210, height: 20, alignment: .center)
-                                .background(Color.gray)
-                        }.padding()
+                        .clipped()
                     }
                 }
+                .background(Color.brown)
+                .navigationTitle(navigationTitle)
+                .navigationBarTitleDisplayMode(.inline)
+                .navigationBarItems(
+                    leading: Button(action: {
+                        buttonTap()
+                    }, label: {
+                        Image(systemName: "arrow.down.circle")
+                    }),
+                    trailing: Image(systemName: "heart.circle.fill")
+                )
             }
-            .navigationTitle(navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarItems(
-                leading: Button(action: {
-                    buttonTap()
-                }, label: {
-                    Image(systemName: "arrow.down.circle")
-                }),
-                trailing: Image(systemName: "heart.circle.fill")
-            )
         }
     }
     
