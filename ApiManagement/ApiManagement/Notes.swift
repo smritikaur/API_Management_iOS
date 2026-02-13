@@ -400,5 +400,6 @@ Prefer many small interfaces over one big “fat” one.
  GeometryReader takes lot of computations
  GetPercentage - using geometryReader - UISCreen.main.bounds.width/2
  GeometryProxy
- 
+ containerRelativeFrame = “Give me 30% of the space”
+ GeometryReader = “Tell me everything about where I am and how big I am”
  */

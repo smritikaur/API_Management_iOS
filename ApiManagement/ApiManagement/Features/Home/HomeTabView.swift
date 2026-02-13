@@ -24,12 +24,28 @@ struct HomeTab: View {
                         HStack {
                             AsyncImage(url: URL(string: video.videoPicture), scale: 1)
                             { image in
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                                    .aspectRatio(contentMode: .fill)
-                                    .clipped()
-                                    .frame(width: geometry.size.width * 0.3, height: geometry.size.height * 0.2)
+                                if #available(iOS 17.0, *) {
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .aspectRatio(contentMode: .fill)
+                                        .clipped()
+                                        .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
+                                            if axis == .horizontal {
+                                                return length * 0.3
+                                            } else {
+                                                return length * 0.6
+                                            }
+                                        }
+                                } else {
+                                    // Fallback on earlier versions
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .aspectRatio(contentMode: .fill)
+                                        .clipped()
+                                        .frame(width: geometry.size.width * 0.3, height: geometry.size.height * 0.2)
+                                }
                             } placeholder: {
                                 ProgressView().progressViewStyle(.circular)
                             }
@@ -39,9 +55,9 @@ struct HomeTab: View {
                                 Text(video.name)
                                     .font(.headline)
                                 Text(video.link)
-                                Text(video.videoPicture)
+//                                Text(video.videoPicture)
                             }
-                            .frame(width: geometry.size.width * 0.5, height: geometry.size.height * 0.2)
+                            .frame(width: geometry.size.width * 0.5, height: geometry.size.height * 0.15)
                             .clipped()
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
