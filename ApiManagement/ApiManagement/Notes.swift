@@ -369,3 +369,37 @@ Prefer many small interfaces over one big “fat” one.
  To show image downloaded from server use AsyncImage
  to make the image fit in its container use .clipped.
  */
+//MARK: AutoLayout
+/**
+ @Enviroment (\.horizotalSizeClass) private var horizontalSizeClass - tells if screen is compact or regular
+ @Environment(\.verticalSizeClass) private var verticalSizeClass - tells if screen is compact or regular size class
+ horizontalSizeClass, verticalSizeClass, AnyLayOut
+ let layout: AnyLayout = horizontalSizeClass == .compact ? AnyLayout(VStackLayout()) : AnyLayout(HStackLayout())
+ Layout {
+ Text(“abc”)
+ Text(“abc”)
+ }
+ */
+
+//MARK: ViewThatFits
+/**
+ We give multiple options of text whichever fits is used automatically by this View.
+ */
+
+//MARK: Dynamic sizing
+/**
+ .frame(maxWidth: .infinity, maxHeight: .infinity)
+ or
+ containerRelativeFrame([.horizontal, .vertical]) - positions the view within an invisible frame with a size relative to the nearest container - //fill screen effect
+ containerRelativeFrame using length and axes to make dynamic height and width
+ or
+ UIScreen.main.bounds.width - screen width
+ UIScreen.main.bounds.height - screen height
+ or
+ GeometryReader - looks at the geometry of the view (portrait and landscape)
+ GeometryReader takes lot of computations
+ GetPercentage - using geometryReader - UISCreen.main.bounds.width/2
+ GeometryProxy
+ containerRelativeFrame = “Give me 30% of the space”
+ GeometryReader = “Tell me everything about where I am and how big I am”
+ */
