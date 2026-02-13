@@ -21,7 +21,7 @@ struct HomeTab: View {
             GeometryReader { geometry in
                 List {
                     ForEach(videos){ video in
-                        HStack {
+                        HStack(alignment: .top) {
                             AsyncImage(url: URL(string: video.videoPicture), scale: 1)
                             { image in
                                 if #available(iOS 17.0, *) {
@@ -32,9 +32,9 @@ struct HomeTab: View {
                                         .clipped()
                                         .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
                                             if axis == .horizontal {
-                                                return length * 0.3
+                                                return length * 0.27
                                             } else {
-                                                return length * 0.6
+                                                return length * 0.7
                                             }
                                         }
                                 } else {
@@ -44,7 +44,7 @@ struct HomeTab: View {
                                         .scaledToFill()
                                         .aspectRatio(contentMode: .fill)
                                         .clipped()
-                                        .frame(width: geometry.size.width * 0.3, height: geometry.size.height * 0.2)
+                                        .frame(width: geometry.size.width * 0.3, height: geometry.size.height * 0.3)
                                 }
                             } placeholder: {
                                 ProgressView().progressViewStyle(.circular)
@@ -53,19 +53,28 @@ struct HomeTab: View {
                             
                             VStack(alignment: .leading) {
                                 Text(video.name)
-                                    .font(.headline)
+                                    .font(.system(size: 17, weight: .bold, design: .rounded))
                                 Text(video.link)
+                                    .font(.system(size: 12, weight: .regular, design: .rounded))
+                                    .lineLimit(2)
 //                                Text(video.videoPicture)
                             }
-                            .frame(width: geometry.size.width * 0.5, height: geometry.size.height * 0.15)
-                            .clipped()
+                            .frame(width: geometry.size.width * 0.5, height: geometry.size.height * 0.11, alignment: .top)
+                            
+                            Menu {
+                                Button("Copy file location ", action: copyFileLocation)
+                                Button("Rename file", action: renameFile)
+                                Button("Download", action: downloadFile)
+                                Button("Delete", action: deleteFile)
+                            } label: {
+                                Image(systemName: "ellipsis")
+                                    .rotationEffect(.degrees(90))
+                            }
+                            .padding(.top, 9)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding()
-                        .clipped()
+                        .frame(maxWidth: .infinity)
                     }
                 }
-                .background(Color.brown)
                 .navigationTitle(navigationTitle)
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarItems(
@@ -79,6 +88,11 @@ struct HomeTab: View {
             }
         }
     }
+    
+    func copyFileLocation() { }
+    func renameFile() { }
+    func deleteFile() { }
+    func downloadFile() {}
     
     func buttonTap(){
         CommonService.requestFromWebService(
