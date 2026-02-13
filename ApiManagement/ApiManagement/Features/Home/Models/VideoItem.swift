@@ -1,10 +1,9 @@
 //
-//  HomeTabViewModel.swift
+//  VideoItem.swift
 //  ApiManagement
 //
-//  Created by singsys on 11/02/26.
+//  Created by singsys on 13/02/26.
 //
-
 import Foundation
 
 struct VideoItem: Identifiable, Hashable {

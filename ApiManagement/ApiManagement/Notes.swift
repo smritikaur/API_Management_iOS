@@ -403,3 +403,15 @@ Prefer many small interfaces over one big “fat” one.
  containerRelativeFrame = “Give me 30% of the space”
  GeometryReader = “Tell me everything about where I am and how big I am”
  */
+
+//MARK: ObservedObject and ObservableObject
+/**
+ - Works same as @State modifier, just inide class instead of @State we use @Published
+ - Inside struct to tell that look at teh statee of the published variable so that it updates accordingly we use @ObservedObject and make the class conform to ObservableObject protocol
+ - @StateObject is similar to @ObservedObject, its just that if we have marked the variable as @StateObject then it doesn't reload everytime the view changes like say after any animation. It persists the state of that varibale unlike the variable marked as @ObservedObject whoch loads everytime the View updates.
+ - load data in initializers instead of viewWillAppear to avoid duplicate data.
+ */
+//MARK: When to use @StateObject and @ObservedObject
+/**
+ If creating the variable for the first time use @StateObject(for init or creation), if passing it to another view use @ObservedObject (when using subviews)
+ */

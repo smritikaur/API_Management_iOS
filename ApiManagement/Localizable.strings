@@ -1,0 +1,9 @@
+/*
+ Use this approach when need to implement localization
+ */
+copy_file_location = "Copy file location 123";
+rename_file = "Rename file";
+download_file = "Download";
+delete_file = "Delete";
+get_pexels_data = "Get Pexels Data";
+

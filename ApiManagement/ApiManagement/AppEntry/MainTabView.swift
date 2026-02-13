@@ -12,16 +12,16 @@ struct MainTabView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            HomeTab(buttonText: "Get Pexels Data", navigationTitle: "Home")
+            HomeTab(buttonText: "get_pexels_data", navigationTitle: HomeStrings.homeNavigationTitle) //localizable strings
                 .tabItem {
                     Image(systemName: "house.fill")
-                    Text("Home")
+                    Text(MainTabStrings.homeNavigationTitle)
                 }
                 .tag(0)
-            DownloadsTab(maintext: "Downloads")
+            DownloadsTab(maintext: MainTabStrings.downloads)
                 .tabItem {
                     Image(systemName: "arrow.down.circle.fill")
-                    Text("Downloads")
+                    Text(MainTabStrings.downloads)
                 }
                 .tag(1)
         }

@@ -11,16 +11,13 @@ import Alamofire
 struct HomeTab: View {
     let buttonText: String
     let navigationTitle: String
-    @State var pexelsVideoSearchData: PexelsVideoSearchModel?
-    @State private var videoFiles: [VideoFile] = []
-    @State private var videoNames: [String] = []
-    @State private var videos: [VideoItem] = []
+    @StateObject var homeViewModel: HomeTabViewModel = HomeTabViewModel()
     
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
                 List {
-                    ForEach(videos){ video in
+                    ForEach(homeViewModel.videos){ video in
                         HStack(alignment: .top) {
                             AsyncImage(url: URL(string: video.videoPicture), scale: 1)
                             { image in
@@ -62,10 +59,10 @@ struct HomeTab: View {
                             .frame(width: geometry.size.width * 0.5, height: geometry.size.height * 0.11, alignment: .top)
                             
                             Menu {
-                                Button("Copy file location ", action: copyFileLocation)
-                                Button("Rename file", action: renameFile)
-                                Button("Download", action: downloadFile)
-                                Button("Delete", action: deleteFile)
+                                Button(HomeStrings.copyFileLocation, action: homeViewModel.copyFileLocation) //eg using Strings.swift
+                                Button("rename_file", action: homeViewModel.renameFile) //eg using localizable.strigs file
+                                Button("download_file", action: homeViewModel.downloadFile)
+                                Button("delete_file", action: homeViewModel.deleteFile)
                             } label: {
                                 Image(systemName: "ellipsis")
                                     .rotationEffect(.degrees(90))
@@ -79,7 +76,7 @@ struct HomeTab: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationBarItems(
                     leading: Button(action: {
-                        buttonTap()
+                        homeViewModel.fetchVideos()
                     }, label: {
                         Image(systemName: "arrow.down.circle")
                     }),
@@ -87,72 +84,5 @@ struct HomeTab: View {
                 )
             }
         }
-    }
-    
-    func copyFileLocation() { }
-    func renameFile() { }
-    func deleteFile() { }
-    func downloadFile() {}
-    
-    func buttonTap(){
-        CommonService.requestFromWebService(
-            ApiManager.searchVideo,
-            parameters: [:]) { data, error, code in
-                let baseURL = "https://www.pexels.com/video/"
-                var items: [VideoItem] = []
-                if let data = data {
-                    for videoData in data.videos {
-                        let videoUrl = videoData.url
-                        guard
-                            videoUrl.hasPrefix(baseURL),
-                            let lastDashIndex = videoUrl.lastIndex(of: "-") else {
-                            continue
-                        }
-                        
-                        let startIndex = videoUrl.index(videoUrl.startIndex, offsetBy: baseURL.count)
-                        let videoTitle = String(videoUrl[startIndex..<lastDashIndex])
-                        
-                        //MARK: VideoLink extraction
-                        
-                        let videoFiles = videoData.videoFiles
-                        guard let videoLinks = videoFiles.first(where: {
-                            $0.quality == "hd" &&
-                            $0.fileType == "video/mp4" &&
-                            $0.width == 1280 &&
-                            $0.height == 720
-                        }) else {
-                            print("executed else of guard")
-                            continue
-                        }
-                        
-                        //MARK: ImageUrl extraction
-                        guard let thumbnail = videoData.videoPictures.first else { continue }
-                        
-                        let videoItem = VideoItem(name: videoTitle, link: videoLinks.link, videoPicture: thumbnail.picture)
-                        items.append(videoItem)
-                    }
-                    
-                    DispatchQueue.main.async {
-                        self.videos = items
-                    }
-                } else if let error = error {
-                    print("error = \(error)")
-                }
-            }
-    }
-    
-    func getDataFromPexels(){
-        AF.request("https://api.pexels.com/videos/search?query=space&per_page=2")
-            .validate(statusCode: 200..<300)
-            .validate(contentType: ["application/json"])
-            .responseString { response in
-                switch response.result {
-                case .success:
-                    print("Validation successful")
-                    print(response.result)
-                case let .failure(error):
-                    print(error)
-                }
-            }
     }
 }
