@@ -12,6 +12,7 @@ struct HomeTab: View {
     let buttonText: String
     let navigationTitle: String
     @StateObject var homeViewModel: HomeTabViewModel = HomeTabViewModel()
+    @StateObject var viewModel: DownloadViewModel = .init()
     
     var body: some View {
         NavigationView {
@@ -70,6 +71,10 @@ struct HomeTab: View {
                             .padding(.top, 9)
                         }
                         .frame(maxWidth: .infinity)
+                        .onTapGesture {
+                            print("Tapped cell")
+                            viewModel.downloadVideo(url: URL(string: video.link)!)
+                        }
                     }
                 }
                 .navigationTitle(navigationTitle)
