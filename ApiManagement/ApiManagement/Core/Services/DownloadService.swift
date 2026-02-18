@@ -5,13 +5,11 @@
 //  Created by singsys on 13/02/26.
 //
 
-//MARK: Link
-/*
- Ref: How to download and save video in device storage in swift? https://thatswiftguy.medium.com/how-to-download-save-the-video-in-device-storage-in-swift-a1129aecd736
- */
 
-//MARK: Full Download Flow Summary
-/**
+/***
+ // MARK: Link
+ Ref: How to download and save video in device storage in swift? https://thatswiftguy.medium.com/how-to-download-save-the-video-in-device-storage-in-swift-a1129aecd736
+ // MARK: Full Download Flow Summary
  1. downloadVideo() called
  2. URLSession starts download
  3. didWriteData updates progress

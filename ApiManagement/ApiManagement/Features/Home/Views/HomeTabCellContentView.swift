@@ -1,0 +1,101 @@
+//
+//  HomeTabCellContentView.swift
+//  ApiManagement
+//
+//  Created by singsys on 18/02/26.
+//
+import SwiftUI
+
+struct CellContent: View {
+    let homeViewModel: HomeTabViewModel
+    let viewModel: DownloadViewModel
+    let video: VideoItem
+    let geometry: GeometryProxy
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            ZStack {
+                AsyncImage(url: URL(string: video.videoPicture), scale: 1)
+                { image in
+                    if #available(iOS 17.0, *) {
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .aspectRatio(contentMode: .fill)
+                            .clipped()
+                            .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
+                                if axis == .horizontal {
+                                    return length * 0.27
+                                } else {
+                                    return length * 0.7
+                                }
+                            }
+                    } else {
+                        // Fallback on earlier versions
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .aspectRatio(contentMode: .fill)
+                            .clipped()
+                            .frame(width: geometry.size.width * 0.3, height: geometry.size.height * 0.3)
+                    }
+                } placeholder: {
+                    ProgressView().progressViewStyle(.circular)
+                } .onTapGesture {
+                    print("Tapped cell")
+                    viewModel.downloadVideo(url: URL(string: video.link)!, videoItemId: video.id)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+                
+                if let progress = viewModel.progress[video.id] {
+                    if progress >= 1.0 {
+                        Image(systemName: "checkmark.circle")
+                            .font(.system(size: 20))
+                            .foregroundColor(Color.black.opacity(0.8))
+                            .padding(6)
+                            .background(Color.white.opacity(0.6))
+                            .clipShape(Circle())
+                            .shadow(radius: 2)
+                    } else {
+                        ProgressIndicator(progress: CGFloat(progress))
+                            .frame(width: 20, height: 20)
+                            .padding(6)
+                            .background(Color.white.opacity(0.6))
+                            .clipShape(Circle())
+                            .shadow(radius: 2)
+                    }
+                } else {
+                    Image(systemName: "arrow.down.circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color.black.opacity(0.8))
+                        .padding(6)
+                        .background(Color.white.opacity(0.6))
+                        .clipShape(Circle())
+                        .shadow(radius: 2)
+                }
+            }
+            
+            VStack(alignment: .leading) {
+                Text(video.name)
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                Text(video.link)
+                    .font(.system(size: 12, weight: .regular, design: .rounded))
+                    .lineLimit(2)
+//                                Text(video.videoPicture)
+            }
+            .frame(width: geometry.size.width * 0.5, height: geometry.size.height * 0.11, alignment: .top)
+            
+            Menu {
+                Button(HomeStrings.copyFileLocation, action: homeViewModel.copyFileLocation) //eg using Strings.swift
+                Button("rename_file", action: homeViewModel.renameFile) //eg using localizable.strigs file
+                Button("download_file", action: homeViewModel.downloadFile)
+                Button("delete_file", action: homeViewModel.deleteFile)
+            } label: {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+            }
+            .padding(.top, 9)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
