@@ -76,8 +76,30 @@ struct CellContent: View {
                 .clipShape(RoundedRectangle(cornerRadius: 15))
                 
                 if let progress = viewModel.progress[video.id] {
-                    ProgressIndicator(progress: CGFloat(progress))
-                        .frame(width: 30, height: 30)
+                    if progress >= 1.0 {
+                        Image(systemName: "checkmark.circle")
+                            .font(.system(size: 20))
+                            .foregroundColor(Color.black.opacity(0.8))
+                            .padding(6)
+                            .background(Color.white.opacity(0.6))
+                            .clipShape(Circle())
+                            .shadow(radius: 2)
+                    } else {
+                        ProgressIndicator(progress: CGFloat(progress))
+                            .frame(width: 20, height: 20)
+                            .padding(6)
+                            .background(Color.white.opacity(0.6))
+                            .clipShape(Circle())
+                            .shadow(radius: 2)
+                    }
+                } else {
+                    Image(systemName: "arrow.down.circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(Color.black.opacity(0.8))
+                        .padding(6)
+                        .background(Color.white.opacity(0.6))
+                        .clipShape(Circle())
+                        .shadow(radius: 2)
                 }
             }
             
