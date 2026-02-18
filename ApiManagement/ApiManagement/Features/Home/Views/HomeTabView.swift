@@ -72,6 +72,9 @@ struct CellContent: View {
                     }
                 } placeholder: {
                     ProgressView().progressViewStyle(.circular)
+                } .onTapGesture {
+                    print("Tapped cell")
+                    viewModel.downloadVideo(url: URL(string: video.link)!, videoItemId: video.id)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 15))
                 
@@ -125,10 +128,5 @@ struct CellContent: View {
             .padding(.top, 9)
         }
         .frame(maxWidth: .infinity)
-        .onTapGesture {
-            print("Tapped cell")
-            viewModel.downloadVideo(url: URL(string: video.link)!, videoItemId: video.id)
-        }
-
     }
 }
