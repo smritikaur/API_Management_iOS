@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 17, *)
 struct MainTabView: View {
     @State var selectedTab = 0
     

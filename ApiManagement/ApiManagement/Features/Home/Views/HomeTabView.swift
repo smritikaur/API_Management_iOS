@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 17, *)
 struct HomeTabView: View {
     let buttonText: String
     let navigationTitle: String

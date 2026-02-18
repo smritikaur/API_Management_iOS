@@ -25,7 +25,7 @@ import Combine
 
 class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate {
     @Published var progress: [String: Float] = [:]
-    @Published var showAlert: Bool = false
+    @Published var isDownloadComplete: Bool = false
     
     ///starts downloading a video from a URL
     func downloadVideo(url: URL, videoItemId: String) {
@@ -71,7 +71,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             print("videoItemId123 = \(videoItemId)")
             self?.progress[videoItemId] = progress
             if progress >= 1.0 {
-                self?.showAlert = true
+                self?.isDownloadComplete = true
             }
         }
     }

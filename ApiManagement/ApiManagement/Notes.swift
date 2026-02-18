@@ -415,3 +415,18 @@ Prefer many small interfaces over one big “fat” one.
 /**
  If creating the variable for the first time use @StateObject(for init or creation), if passing it to another view use @ObservedObject (when using subviews)
  */
+
+//MARK: SwiftData
+/**
+ - SwiftData advanced and easy to use variant of CoreData.
+ - Easy to integarte in SwiftUI
+ - Simply make a struct with @Model property wrapper that represents the database table
+ - Second we can add attributes in that data model made using @Model wrapper using @Attribute property wrapper
+ -
+ - Use @Model to tell SwiftData that this will be a table in our database.
+ - Use @Attribute property wrapper to add attributes to the fields in the Database
+ - Use @Attribute(.unique) to guarantee that this column will always be unique in our databse
+ - We do not have access to that DataModel yet in our app. We attach the container (database) by adding the modelContainer modifier to our project at the top level since we want our whole app to have access to the database. If you are familiar with how an environment variable works, the modelContainer modifier is very similar.
+ - The modelContaier holds the array of each Type of data that we want to read from the container
+ - @Query parameter - This property wrapper will search the DataModel table, return everything it finds, and assign that to the dataModel variable. This dataModel variable is what we will use to power the List component (allows us to query the data inside our model...)
+ */

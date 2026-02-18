@@ -5,12 +5,19 @@
 //  Created by singsys on 18/02/26.
 //
 import SwiftUI
+import SwiftData
 
+@available(iOS 17, *)
 struct CellContent: View {
     let homeViewModel: HomeTabViewModel
-    let viewModel: DownloadViewModel
+    @ObservedObject var viewModel: DownloadViewModel
     let video: VideoItem
     let geometry: GeometryProxy
+    @Environment(\.modelContext) var modelContext
+    @Query var dowloadedVideoDataModel: [DownloadedVideoDataModel]
+    private var currentVideoData: DownloadedVideoDataModel? {
+        dowloadedVideoDataModel.first(where: { $0.videoLink == video.link })
+    }
     
     var body: some View {
         HStack(alignment: .top) {
@@ -43,22 +50,28 @@ struct CellContent: View {
                     ProgressView().progressViewStyle(.circular)
                 } .onTapGesture {
                     print("Tapped cell")
-                    viewModel.downloadVideo(url: URL(string: video.link)!, videoItemId: video.id)
+                    if let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+                        let dbURL = appSupport.appendingPathComponent("default.store")
+                        print("SwiftData DB Path:")
+                        print(dbURL.path)
+                    }
+                    if let progress = currentVideoData?.progress {
+                        if progress >= 1.0 {
+                            print("Video already downloaded.")
+                        } else {
+                            viewModel.downloadVideo(url: URL(string: video.link)!, videoItemId: video.id)
+                        }
+                    } else {
+                        viewModel.downloadVideo(url: URL(string: video.link)!, videoItemId: video.id)
+                    }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: 15))
                 
-                if let progress = viewModel.progress[video.id] {
+                if let progress = currentVideoData?.progress {
                     if progress >= 1.0 {
                         Image(systemName: "checkmark.circle")
                             .font(.system(size: 20))
                             .foregroundColor(Color.black.opacity(0.8))
-                            .padding(6)
-                            .background(Color.white.opacity(0.6))
-                            .clipShape(Circle())
-                            .shadow(radius: 2)
-                    } else {
-                        ProgressIndicator(progress: CGFloat(progress))
-                            .frame(width: 20, height: 20)
                             .padding(6)
                             .background(Color.white.opacity(0.6))
                             .clipShape(Circle())
@@ -72,6 +85,16 @@ struct CellContent: View {
                         .background(Color.white.opacity(0.6))
                         .clipShape(Circle())
                         .shadow(radius: 2)
+                }
+                if let liveProgress = viewModel.progress[video.id] {
+                    if liveProgress < 1.0 {
+                        ProgressIndicator(progress: CGFloat(liveProgress))
+                            .frame(width: 20, height: 20)
+                            .padding(6)
+                            .background(Color.white.opacity(0.6))
+                            .clipShape(Circle())
+                            .shadow(radius: 2)
+                    }
                 }
             }
             
@@ -97,5 +120,17 @@ struct CellContent: View {
             .padding(.top, 9)
         }
         .frame(maxWidth: .infinity)
+        .onChange(of: viewModel.isDownloadComplete) { isComplete in
+            if isComplete {
+                if let progress = viewModel.progress[video.id] {
+                    let newDownloadVideoDataModel = DownloadedVideoDataModel(videoId: video.id, progress: progress, videoLink: video.link)
+                    print("called 123")
+                    modelContext.insert(newDownloadVideoDataModel)
+                }
+            }
+        }
+        .alert(isPresented: $viewModel.isDownloadComplete) {
+            Alert(title: Text("Video Downloaded"))
+        }
     }
 }
