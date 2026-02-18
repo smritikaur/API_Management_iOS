@@ -26,16 +26,18 @@ import AVFoundation
 import Combine
 
 class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate {
-    @Published var progress: Float = 0
+    @Published var progress: [String: Float] = [:]
+    @Published var showAlert: Bool = false
     
     ///starts downloading a video from a URL
-    func downloadVideo(url: URL) {
+    func downloadVideo(url: URL, videoItemId: String) {
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil) //Sets self as the delegate so progress + completion methods will be called.
         let task = session.dataTask(with: url) { (data, response, error) in
             guard error == nil else { //we dont need this datatask we could actually directly start the downloadTask as well
                 return
             }
             let downloadTask = session.downloadTask(with: url) //actual download task
+            downloadTask.taskDescription = videoItemId
             downloadTask.resume()
         }
         task.resume()
@@ -62,10 +64,17 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     }
     /// called continuously while downloading
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        guard let videoItemId = downloadTask.taskDescription else { return }
         print(Float(totalBytesWritten) / Float(totalBytesExpectedToWrite))
-        DispatchQueue.main.async {
+        let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+        DispatchQueue.main.async { [weak self] in
             /// Calculates progress (Eg: Written : 50 MB, Expected: 100MB, Progress: 0.5) and updates UI on main thread
-            self.progress = (Float(totalBytesWritten) / Float(totalBytesExpectedToWrite))
+            print("progress123 = \(progress)")
+            print("videoItemId123 = \(videoItemId)")
+            self?.progress[videoItemId] = progress
+            if progress >= 1.0 {
+                self?.showAlert = true
+            }
         }
     }
     /// Checks if album exists; If yes - saves video; If no - create album - then save video

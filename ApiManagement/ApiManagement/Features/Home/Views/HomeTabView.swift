@@ -8,7 +8,7 @@
 import SwiftUI
 import Alamofire
 
-struct HomeTab: View {
+struct HomeTabView: View {
     let buttonText: String
     let navigationTitle: String
     @StateObject var homeViewModel: HomeTabViewModel = HomeTabViewModel()
@@ -19,62 +19,7 @@ struct HomeTab: View {
             GeometryReader { geometry in
                 List {
                     ForEach(homeViewModel.videos){ video in
-                        HStack(alignment: .top) {
-                            AsyncImage(url: URL(string: video.videoPicture), scale: 1)
-                            { image in
-                                if #available(iOS 17.0, *) {
-                                    image
-                                        .resizable()
-                                        .scaledToFill()
-                                        .aspectRatio(contentMode: .fill)
-                                        .clipped()
-                                        .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
-                                            if axis == .horizontal {
-                                                return length * 0.27
-                                            } else {
-                                                return length * 0.7
-                                            }
-                                        }
-                                } else {
-                                    // Fallback on earlier versions
-                                    image
-                                        .resizable()
-                                        .scaledToFill()
-                                        .aspectRatio(contentMode: .fill)
-                                        .clipped()
-                                        .frame(width: geometry.size.width * 0.3, height: geometry.size.height * 0.3)
-                                }
-                            } placeholder: {
-                                ProgressView().progressViewStyle(.circular)
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
-                            
-                            VStack(alignment: .leading) {
-                                Text(video.name)
-                                    .font(.system(size: 17, weight: .bold, design: .rounded))
-                                Text(video.link)
-                                    .font(.system(size: 12, weight: .regular, design: .rounded))
-                                    .lineLimit(2)
-//                                Text(video.videoPicture)
-                            }
-                            .frame(width: geometry.size.width * 0.5, height: geometry.size.height * 0.11, alignment: .top)
-                            
-                            Menu {
-                                Button(HomeStrings.copyFileLocation, action: homeViewModel.copyFileLocation) //eg using Strings.swift
-                                Button("rename_file", action: homeViewModel.renameFile) //eg using localizable.strigs file
-                                Button("download_file", action: homeViewModel.downloadFile)
-                                Button("delete_file", action: homeViewModel.deleteFile)
-                            } label: {
-                                Image(systemName: "ellipsis")
-                                    .rotationEffect(.degrees(90))
-                            }
-                            .padding(.top, 9)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .onTapGesture {
-                            print("Tapped cell")
-                            viewModel.downloadVideo(url: URL(string: video.link)!)
-                        }
+                        CellContent(homeViewModel: homeViewModel, viewModel: viewModel, video: video, geometry: geometry)
                     }
                 }
                 .navigationTitle(navigationTitle)
@@ -89,5 +34,79 @@ struct HomeTab: View {
                 )
             }
         }
+    }
+}
+
+struct CellContent: View {
+    let homeViewModel: HomeTabViewModel
+    let viewModel: DownloadViewModel
+    let video: VideoItem
+    let geometry: GeometryProxy
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            ZStack {
+                AsyncImage(url: URL(string: video.videoPicture), scale: 1)
+                { image in
+                    if #available(iOS 17.0, *) {
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .aspectRatio(contentMode: .fill)
+                            .clipped()
+                            .containerRelativeFrame([.horizontal, .vertical]) { length, axis in
+                                if axis == .horizontal {
+                                    return length * 0.27
+                                } else {
+                                    return length * 0.7
+                                }
+                            }
+                    } else {
+                        // Fallback on earlier versions
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .aspectRatio(contentMode: .fill)
+                            .clipped()
+                            .frame(width: geometry.size.width * 0.3, height: geometry.size.height * 0.3)
+                    }
+                } placeholder: {
+                    ProgressView().progressViewStyle(.circular)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 15))
+                
+                if let progress = viewModel.progress[video.id] {
+                    ProgressIndicator(progress: CGFloat(progress))
+                        .frame(width: 30, height: 30)
+                }
+            }
+            
+            VStack(alignment: .leading) {
+                Text(video.name)
+                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                Text(video.link)
+                    .font(.system(size: 12, weight: .regular, design: .rounded))
+                    .lineLimit(2)
+//                                Text(video.videoPicture)
+            }
+            .frame(width: geometry.size.width * 0.5, height: geometry.size.height * 0.11, alignment: .top)
+            
+            Menu {
+                Button(HomeStrings.copyFileLocation, action: homeViewModel.copyFileLocation) //eg using Strings.swift
+                Button("rename_file", action: homeViewModel.renameFile) //eg using localizable.strigs file
+                Button("download_file", action: homeViewModel.downloadFile)
+                Button("delete_file", action: homeViewModel.deleteFile)
+            } label: {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+            }
+            .padding(.top, 9)
+        }
+        .frame(maxWidth: .infinity)
+        .onTapGesture {
+            print("Tapped cell")
+            viewModel.downloadVideo(url: URL(string: video.link)!, videoItemId: video.id)
+        }
+
     }
 }

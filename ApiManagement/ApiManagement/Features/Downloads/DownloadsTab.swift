@@ -8,9 +8,17 @@
 import SwiftUI
 
 struct DownloadsTab: View {
+    @State private var progress: CGFloat = 0.2
     let maintext: String
     var body: some View {
         NavigationView {
+            VStack {
+              ProgressIndicator(progress: progress)
+                .frame(width: 30, height: 30) // adjust size as needed
+
+              Slider(value: $progress, in: 0...1) // Slider to adjust progress for demonstration
+                .padding()
+            }
             Text(maintext)
                 .navigationTitle(maintext)
                 .navigationBarTitleDisplayMode(.inline)
@@ -35,7 +43,6 @@ struct DownloadsTab: View {
                                 .shadow(color: Color.gray, radius: 5, x: 5, y: 10)
                             ,alignment: .bottomTrailing
                         )
-                    
                 )
         }
     }

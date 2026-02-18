@@ -7,7 +7,7 @@
 import Foundation
 
 struct VideoItem: Identifiable, Hashable {
-    let id = UUID()
+    let id = UUID().uuidString
     let name: String
     let link: String
     let videoPicture: String
