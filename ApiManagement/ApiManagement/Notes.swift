@@ -434,3 +434,8 @@ Prefer many small interfaces over one big “fat” one.
 /**
  - one View cannot have two alert modifier. you have to manage the state accordingly like when to use which alert.
  */
+
+//MARK: PHPhotoLibrary
+/**
+ - Use this to save or retrive images or videos or data from user's Photo Library.
+ */

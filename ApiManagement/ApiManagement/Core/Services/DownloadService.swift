@@ -83,41 +83,81 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         }
     }
     /// Checks if album exists; If yes - saves video; If no - create album - then save video
+    /// Older version - Check → Maybe wrong → Create duplicate - caused duplicate albums
+//    private func saveVideoToAlbum(videoURL: URL, albumName: String) {
+//        /// STEP 1: Check if album exists
+//        if albumExists(albumName: albumName) {
+//            let fetchOptions = PHFetchOptions()
+//            fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
+//            
+//            
+//            let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .albumRegular, options: fetchOptions)
+//            if let album = collection.firstObject {
+//                /// STEP 3 - Save video into the album
+//                saveVideo(videoURL: videoURL, to: album)
+//            }
+//        } else {
+//            var albumPlaceholder: PHObjectPlaceholder?
+//            PHPhotoLibrary.shared().performChanges({
+//                let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: albumName)
+//                albumPlaceholder = createAlbumRequest.placeholderForCreatedAssetCollection
+//            }, completionHandler: { success, error in
+//                if success {
+//                    guard let albumPlaceholder = albumPlaceholder else { return }
+//                    let collectionFetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumPlaceholder.localIdentifier], options: nil)
+//                    guard let album = collectionFetchResult.firstObject else { return }
+//                    self.saveVideo(videoURL: videoURL, to: album)
+//                } else {
+//                    print("Error creating album: \(error?.localizedDescription ?? "")")
+//                }
+//            })
+//        }
+//    }
+    ///Fetch → If exists use → Else create - this tighter version prevents videos from going to differrent versions.
     private func saveVideoToAlbum(videoURL: URL, albumName: String) {
-        /// STEP 1: Check if album exists
-        if albumExists(albumName: albumName) {
-            let fetchOptions = PHFetchOptions()
-            fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
-            let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
-            if let album = collection.firstObject {
-                /// STEP 3 - Save video into the album
-                saveVideo(videoURL: videoURL, to: album)
-            }
+        
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
+        
+        // IMPORTANT: Use .albumRegular
+        let collection = PHAssetCollection.fetchAssetCollections(
+            with: .album,
+            subtype: .albumRegular,
+            options: fetchOptions
+        )
+        
+        if let album = collection.firstObject {
+            // Album exists → reuse it
+            saveVideo(videoURL: videoURL, to: album)
         } else {
-            var albumPlaceholder: PHObjectPlaceholder?
+            // Album does not exist → create once
             PHPhotoLibrary.shared().performChanges({
-                let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: albumName)
-                albumPlaceholder = createAlbumRequest.placeholderForCreatedAssetCollection
-            }, completionHandler: { success, error in
+                PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: albumName)
+            }) { success, error in
                 if success {
-                    guard let albumPlaceholder = albumPlaceholder else { return }
-                    let collectionFetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [albumPlaceholder.localIdentifier], options: nil)
-                    guard let album = collectionFetchResult.firstObject else { return }
-                    self.saveVideo(videoURL: videoURL, to: album)
+                    // Fetch the newly created album
+                    let fetchResult = PHAssetCollection.fetchAssetCollections(
+                        with: .album,
+                        subtype: .albumRegular,
+                        options: fetchOptions
+                    )
+                    if let newAlbum = fetchResult.firstObject {
+                        self.saveVideo(videoURL: videoURL, to: newAlbum)
+                    }
                 } else {
-                    print("Error creating album: \(error?.localizedDescription ?? "")")
+                    print("Error creating album:", error?.localizedDescription ?? "")
                 }
-            })
+            }
         }
     }
     /// Searches Photos for an album with that title.
-    private func albumExists(albumName: String) -> Bool {
-        let fetchOptions = PHFetchOptions()
-        fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
-        /// STEP 2 -  Fetch album (Find albums in Photos)
-        let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
-        return collection.firstObject != nil
-    }
+//    private func albumExists(albumName: String) -> Bool {
+//        let fetchOptions = PHFetchOptions()
+//        fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
+//        /// STEP 2 -  Fetch album (Find albums in Photos)
+//        let collection = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
+//        return collection.firstObject != nil
+//    }
 
     /// Saves video in the Photos app
     private func saveVideo(videoURL: URL, to album: PHAssetCollection) {
