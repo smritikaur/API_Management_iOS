@@ -430,3 +430,7 @@ Prefer many small interfaces over one big “fat” one.
  - The modelContaier holds the array of each Type of data that we want to read from the container
  - @Query parameter - This property wrapper will search the DataModel table, return everything it finds, and assign that to the dataModel variable. This dataModel variable is what we will use to power the List component (allows us to query the data inside our model...)
  */
+//MARK .alert modifier
+/**
+ - one View cannot have two alert modifier. you have to manage the state accordingly like when to use which alert.
+ */

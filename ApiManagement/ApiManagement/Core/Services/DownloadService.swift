@@ -23,9 +23,16 @@ import Photos
 import AVFoundation
 import Combine
 
+enum DownloadAlertType: String, Identifiable {
+    case downloaded
+    case alreadyDownloaded
+    var id: String { rawValue }
+}
+
 class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate {
     @Published var progress: [String: Float] = [:]
-    @Published var isDownloadComplete: Bool = false
+    @Published var isDownloadComplete: [String: Bool] = [:]
+    @Published var activeAlert: DownloadAlertType?
     
     ///starts downloading a video from a URL
     func downloadVideo(url: URL, videoItemId: String) {
@@ -71,7 +78,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             print("videoItemId123 = \(videoItemId)")
             self?.progress[videoItemId] = progress
             if progress >= 1.0 {
-                self?.isDownloadComplete = true
+                self?.isDownloadComplete[videoItemId] = true
             }
         }
     }

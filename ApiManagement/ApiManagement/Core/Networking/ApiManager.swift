@@ -20,7 +20,7 @@ extension ApiManager {
         var path = ""
         switch self {
         case .searchVideo:
-            path = "search?query=space&per_page=2"
+            path = "search?query=animation&per_page=2"
         }
         return domain + path
     }

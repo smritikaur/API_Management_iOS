@@ -5,7 +5,7 @@
 //  Created by singsys on 13/02/26.
 //
 /**
- Use this if no localization needed
+ Use this approach if no localization needed otherwise use Localizble.strings file.
  */
 enum HomeStrings {
     static let copyFileLocation = "Copy file location"

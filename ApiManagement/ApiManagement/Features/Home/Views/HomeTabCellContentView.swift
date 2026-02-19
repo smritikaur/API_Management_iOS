@@ -57,6 +57,7 @@ struct CellContent: View {
                     }
                     if let progress = currentVideoData?.progress {
                         if progress >= 1.0 {
+                            viewModel.activeAlert = .alreadyDownloaded
                             print("Video already downloaded.")
                         } else {
                             viewModel.downloadVideo(url: URL(string: video.link)!, videoItemId: video.id)
@@ -120,17 +121,23 @@ struct CellContent: View {
             .padding(.top, 9)
         }
         .frame(maxWidth: .infinity)
-        .onChange(of: viewModel.isDownloadComplete) { isComplete in
-            if isComplete {
+        .onChange(of: viewModel.isDownloadComplete[video.id]) { isComplete in
+            if let isComplete = isComplete, isComplete {
                 if let progress = viewModel.progress[video.id] {
                     let newDownloadVideoDataModel = DownloadedVideoDataModel(videoId: video.id, progress: progress, videoLink: video.link)
                     print("called 123")
+                    viewModel.activeAlert = .downloaded
                     modelContext.insert(newDownloadVideoDataModel)
                 }
             }
         }
-        .alert(isPresented: $viewModel.isDownloadComplete) {
-            Alert(title: Text("Video Downloaded"))
+        .alert(item: $viewModel.activeAlert) { alertType in
+            switch alertType {
+            case .downloaded:
+                return Alert(title: Text("Video Downloaded"))
+            case .alreadyDownloaded:
+                return Alert(title: Text("Video Already Downloaded"))
+            }
         }
     }
 }
