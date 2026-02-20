@@ -127,7 +127,7 @@ struct CellContent: View {
             .compositingGroup()     // fixes _UIReparentingView warning
         }
         .frame(maxWidth: .infinity)
-        .onChange(of: viewModel.isDownloadComplete[video.id]) { isComplete in
+        .onChange(of: viewModel.isDownloadComplete[video.id]) { _, isComplete in
             if let isComplete = isComplete, isComplete {
                 if let progress = viewModel.progress[video.id] {
                     let newDownloadVideoDataModel = DownloadedVideoDataModel(videoId: video.id, progress: progress, videoLink: video.link)
