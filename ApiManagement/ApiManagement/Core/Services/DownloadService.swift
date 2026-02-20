@@ -33,9 +33,13 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     @Published var progress: [String: Float] = [:]
     @Published var isDownloadComplete: [String: Bool] = [:]
     @Published var activeAlert: DownloadAlertType?
+    @Published var downloadTask: URLSessionDownloadTask?
+    @Published var resumeData: Data?
+    @Published var urlSession: URLSession?
     
     ///starts downloading a video from a URL
     func downloadVideo(url: URL, videoItemId: String) {
+        print("downloadVideo called again...")
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil) //Sets self as the delegate so progress + completion methods will be called.
         let task = session.dataTask(with: url) { (data, response, error) in
             guard error == nil else { //we dont need this datatask we could actually directly start the downloadTask as well
@@ -44,8 +48,41 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             let downloadTask = session.downloadTask(with: url) //actual download task
             downloadTask.taskDescription = videoItemId
             downloadTask.resume()
+            DispatchQueue.main.async { [weak self] in
+                self?.downloadTask = downloadTask
+                self?.urlSession = session
+            }
         }
         task.resume()
+    }
+    
+    func resumeDownload(resumeData: Data?, urlSession: URLSession?, videoItemId: String){
+        print("resumeDownload executed")
+        guard let resumeData = resumeData else {
+            // inform the user the download can't be resumed
+            print("download cannot be resumed. Re-download it.")
+            return
+        }
+        let downloadTask = urlSession?.downloadTask(withResumeData: resumeData)
+        downloadTask?.resume()
+        DispatchQueue.main.async { [weak self] in
+            downloadTask?.taskDescription = videoItemId
+            self?.downloadTask = downloadTask
+            self?.urlSession = urlSession
+        }
+        print("resumeDownload execution finished")
+    }
+    
+    func cancelDownload(task: URLSessionDownloadTask?) {
+        print("deleteFile executed")
+        task?.cancel { resumeDataOrNil in
+            guard let resumeData = resumeDataOrNil else {
+              // download can't be resumed; remove from UI if necessary
+                print("resumeData empty")
+              return
+            }
+            print("resume data not empty")
+        }
     }
     
     ///didFinishDownloadingTo called when the download completes;  location is a temporary file URL where iOS stores the downloaded file.
@@ -81,6 +118,23 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
                 self?.isDownloadComplete[videoItemId] = true
             }
         }
+    }
+   ///called after didFinishLoading whether download is successfu (error will be nill or unsuccessful(error will not be nil).
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        guard let error = error else {
+            // Handle success case.
+            print("error123 = \(String(describing: error))")
+            return
+        }
+        print("error while downloading: \(error)")
+        let userInfo = (error as NSError).userInfo
+        if let resumeData = userInfo[NSURLSessionDownloadTaskResumeData] as? Data {
+            DispatchQueue.main.async { [weak self] in
+                self?.resumeData = resumeData
+                print("Data resumed = \(String(describing: self?.resumeData))")
+            }
+        }
+        // Perform any other error handling.
     }
     /// Checks if album exists; If yes - saves video; If no - create album - then save video
     /// Older version - Check → Maybe wrong → Create duplicate - caused duplicate albums

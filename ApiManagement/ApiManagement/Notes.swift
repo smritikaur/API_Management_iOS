@@ -439,3 +439,22 @@ Prefer many small interfaces over one big “fat” one.
 /**
  - Use this to save or retrive images or videos or data from user's Photo Library.
  */
+
+//MARK: SwiftData
+/**
+ Get error - CoreData: error: Failed to stat path '/Users/elecsl197/Library/Developer/CoreSimulator/Devices/21971CE6-AD8D-4C60-A2A7-FFB09D867BCE/data/Containers/Data/Application/6C59E2F4-030E-4090-9F6D-C35C9F67C34D/Library/Application Support', errno 2 / No such file or directory.
+ 
+ - SwiftData stores the default.store inside Application Support. So, when we first time install the app then we usually get this error because if that folder does not exist then SwiftData recreates it to store the default.store file. Then after subsequent launches we don't get these warnings again.
+ */
+
+//MARK: Download Task
+/**
+ Flow for download task:
+ First didWriteData (progress) is called,
+
+ then didFinishDownloadingTo (file location) is called,
+
+ then didCompleteWithError is called,
+
+ and Even after successful download, didCompleteWithError still runs (with error == nil).
+ */

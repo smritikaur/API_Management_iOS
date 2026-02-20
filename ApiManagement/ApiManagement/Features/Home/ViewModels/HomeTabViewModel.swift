@@ -64,8 +64,7 @@ class HomeTabViewModel: ObservableObject {
     
     func copyFileLocation() { } 
     func renameFile() { }
-    func deleteFile() { }
-    func downloadFile() {}
+    func downloadFile() { }
     
     func getDataFromPexels(){
         AF.request("https://api.pexels.com/videos/search?query=space&per_page=2")

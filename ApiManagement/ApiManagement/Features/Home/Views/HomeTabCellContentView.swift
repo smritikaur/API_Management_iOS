@@ -113,12 +113,18 @@ struct CellContent: View {
                 Button(HomeStrings.copyFileLocation, action: homeViewModel.copyFileLocation) //eg using Strings.swift
                 Button("rename_file", action: homeViewModel.renameFile) //eg using localizable.strigs file
                 Button("download_file", action: homeViewModel.downloadFile)
-                Button("delete_file", action: homeViewModel.deleteFile)
+                Button("cancel_download") {
+                    viewModel.cancelDownload(task: viewModel.downloadTask)
+                }
+                Button("resume_download"){
+                    viewModel.resumeDownload(resumeData: viewModel.resumeData, urlSession: viewModel.urlSession, videoItemId: video.id)
+                }
             } label: {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))
             }
             .padding(.top, 9)
+            .compositingGroup()     // fixes _UIReparentingView warning
         }
         .frame(maxWidth: .infinity)
         .onChange(of: viewModel.isDownloadComplete[video.id]) { isComplete in
