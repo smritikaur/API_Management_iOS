@@ -133,6 +133,7 @@ struct CellContent: View {
                     let newDownloadVideoDataModel = DownloadedVideoDataModel(videoId: video.id, progress: progress, videoLink: video.link)
                     print("called 123")
                     viewModel.activeAlert = .downloaded
+                    /// right now inserting only those videos in local db whose progress is equal to 1.0, that is, has been downloaded.
                     modelContext.insert(newDownloadVideoDataModel)
                 }
             }
