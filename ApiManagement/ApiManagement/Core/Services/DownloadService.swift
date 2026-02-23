@@ -38,10 +38,14 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     @Published var downloadTask: URLSessionDownloadTask?
     @Published var resumeData: Data?
     @Published var urlSession: URLSession?
+    @Published var isDownloading: Set<String> = []
     
     ///starts downloading a video from a URL
     func downloadVideo(url: URL, videoItemId: String) {
         print("downloadVideo called again...")
+        DispatchQueue.main.async { [weak self] in
+               self?.isDownloading.insert(videoItemId)
+           }
         let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil) //Sets self as the delegate so progress + completion methods will be called.
         let task = session.dataTask(with: url) { (data, response, error) in
             guard error == nil else { //we dont need this datatask we could actually directly start the downloadTask as well
@@ -85,6 +89,11 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         task.cancel { resumeDataOrNil in
             if let resumeData = resumeDataOrNil {
                 print("resume data not empty")
+                if let id = task.taskDescription {
+                    DispatchQueue.main.async {
+                        self.isDownloading.remove(id)
+                    }
+                }
                 completion(resumeData)
             } else {
                 print("resumeData empty")
@@ -131,7 +140,12 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         guard let error = error else {
             // Handle success case.
-            print("error123 = \(String(describing: error))")
+            DispatchQueue.main.async { [weak self] in
+                if let id = task.taskDescription {
+                    print("came here 123")
+                    self?.isDownloading.remove(id)
+                }
+            }
             return
         }
         print("error while downloading: \(error)")
@@ -140,6 +154,9 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             DispatchQueue.main.async { [weak self] in
                 self?.resumeData = resumeData
                 print("Data resumed = \(String(describing: self?.resumeData))")
+                if let id = task.taskDescription {
+                    self?.isDownloading.remove(id)
+                }
             }
         }
         // Perform any other error handling.

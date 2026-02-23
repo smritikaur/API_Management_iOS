@@ -96,6 +96,15 @@ struct CellContent: View {
                             .clipShape(Circle())
                             .shadow(radius: 2)
                     }
+                } else {
+                    if viewModel.isDownloading.contains(video.id) {
+                        ProgressView()
+                            .frame(width: 20, height: 20)
+                            .padding(6)
+                            .background(Color.white.opacity(0.6))
+                            .clipShape(Circle())
+                            .shadow(radius: 2)
+                    }
                 }
             }
             
@@ -161,5 +170,11 @@ struct CellContent: View {
                 return Alert(title: Text("Video Already Downloaded"))
             }
         }
+    }
+}
+struct CircularProgress: View {
+    var body: some View {
+        ProgressView()
+            .progressViewStyle(CircularProgressViewStyle())
     }
 }
