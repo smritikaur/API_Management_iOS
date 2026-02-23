@@ -18,10 +18,12 @@
  6. Album checked/created
  7.Video saved to Photos album
  */
+//TODO: redundant data in db
 import Foundation
 import Photos
 import AVFoundation
 import Combine
+import SwiftData
 
 enum DownloadAlertType: String, Identifiable {
     case downloaded
@@ -73,15 +75,21 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         print("resumeDownload execution finished")
     }
     
-    func cancelDownload(task: URLSessionDownloadTask?) {
+    func cancelDownload(task: URLSessionDownloadTask?, video: VideoItem, progress: Float, completion: @escaping(_ resumeData: Data?) -> Void ) {
         print("deleteFile executed")
-        task?.cancel { resumeDataOrNil in
-            guard let resumeData = resumeDataOrNil else {
-              // download can't be resumed; remove from UI if necessary
+        
+        guard let task = task else {
+            completion(nil)
+            return
+        }
+        task.cancel { resumeDataOrNil in
+            if let resumeData = resumeDataOrNil {
+                print("resume data not empty")
+                completion(resumeData)
+            } else {
                 print("resumeData empty")
-              return
+                completion(nil)
             }
-            print("resume data not empty")
         }
     }
     

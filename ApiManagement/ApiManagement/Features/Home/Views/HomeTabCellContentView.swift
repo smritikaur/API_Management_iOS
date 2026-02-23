@@ -114,7 +114,18 @@ struct CellContent: View {
                 Button("rename_file", action: homeViewModel.renameFile) //eg using localizable.strigs file
                 Button("download_file", action: homeViewModel.downloadFile)
                 Button("cancel_download") {
-                    viewModel.cancelDownload(task: viewModel.downloadTask)
+                    if let progress = viewModel.progress[video.id] {
+                        viewModel.cancelDownload(task: viewModel.downloadTask, video: video, progress: progress) { resumeData in
+                            if resumeData != nil {
+                                let newDownloadVideoDataModel = DownloadedVideoDataModel(videoId: video.id, progress: progress, videoLink: video.link)
+                                DispatchQueue.main.async {
+                                    modelContext.insert(newDownloadVideoDataModel)
+                                }
+                            } else {
+                                print("resumeData is nil")
+                            }
+                        }
+                    }
                 }
                 Button("resume_download"){
                     viewModel.resumeDownload(resumeData: viewModel.resumeData, urlSession: viewModel.urlSession, videoItemId: video.id)
@@ -134,7 +145,11 @@ struct CellContent: View {
                     print("called 123")
                     viewModel.activeAlert = .downloaded
                     /// right now inserting only those videos in local db whose progress is equal to 1.0, that is, has been downloaded.
-                    modelContext.insert(newDownloadVideoDataModel)
+                    if currentVideoData != nil {
+                        currentVideoData?.progress = progress
+                    } else {
+                        modelContext.insert(newDownloadVideoDataModel)
+                    }
                 }
             }
         }
