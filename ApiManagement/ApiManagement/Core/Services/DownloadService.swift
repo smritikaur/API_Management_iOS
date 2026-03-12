@@ -43,23 +43,25 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     ///starts downloading a video from a URL
     func downloadVideo(url: URL, videoItemId: String) {
         print("downloadVideo called again...")
+        
+        let config = URLSessionConfiguration.background(withIdentifier: "MySession")
+            config.isDiscretionary = true
+            config.sessionSendsLaunchEvents = true
+           let session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+  
         DispatchQueue.main.async { [weak self] in
-               self?.isDownloading.insert(videoItemId)
-           }
-        let session = URLSession(configuration: .default, delegate: self, delegateQueue: nil) //Sets self as the delegate so progress + completion methods will be called.
-        let task = session.dataTask(with: url) { (data, response, error) in
-            guard error == nil else { //we dont need this datatask we could actually directly start the downloadTask as well
-                return
-            }
-            let downloadTask = session.downloadTask(with: url) //actual download task
-            downloadTask.taskDescription = videoItemId
-            downloadTask.resume()
-            DispatchQueue.main.async { [weak self] in
-                self?.downloadTask = downloadTask
-                self?.urlSession = session
-            }
+            self?.isDownloading.insert(videoItemId)
         }
-        task.resume()
+        let backgroundTask = session.downloadTask(with: url)
+        backgroundTask.earliestBeginDate = Date().addingTimeInterval(5)
+        backgroundTask.countOfBytesClientExpectsToSend = 200
+        backgroundTask.countOfBytesClientExpectsToReceive = 500 * 1024
+        backgroundTask.taskDescription = videoItemId
+        DispatchQueue.main.async { [weak self] in
+            self?.downloadTask = backgroundTask
+            self?.urlSession = session
+        }
+        backgroundTask.resume()
     }
     
     func resumeDownload(resumeData: Data?, urlSession: URLSession?, videoItemId: String){
@@ -104,6 +106,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     
     ///didFinishDownloadingTo called when the download completes;  location is a temporary file URL where iOS stores the downloaded file.
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        print("called didFinishDownloadingTo")
         /// Step 1 - Convert temp file into data (means reads the downloaded file into memory)
         guard let data = try? Data(contentsOf: location) else {
             return
@@ -123,6 +126,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     }
     /// called continuously while downloading
     func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+        print("called didWriteData")
         guard let videoItemId = downloadTask.taskDescription else { return }
         print(Float(totalBytesWritten) / Float(totalBytesExpectedToWrite))
         let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
@@ -255,5 +259,27 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
                 print("Error saving video to album: \(error?.localizedDescription ?? "")")
             }
         })
+    }
+    
+    func restoreDownloads(){
+        urlSession?.getAllTasks { tasks in
+            for task in tasks {
+                guard let downloadTask = task as? URLSessionDownloadTask,
+                      let id = downloadTask.taskDescription else { continue }
+                
+                let received = downloadTask.countOfBytesReceived
+                let expected = downloadTask.countOfBytesExpectedToReceive
+                
+                let progress = expected > 0 ? Float(received) / Float(expected) : 0
+                
+                DispatchQueue.main.async {
+                    self.progress[id] = progress
+                    self.isDownloading.insert(id)
+                    if progress >= 1.0 {
+                        self.isDownloadComplete[id] = true
+                    }
+                }
+            }
+        }
     }
 }

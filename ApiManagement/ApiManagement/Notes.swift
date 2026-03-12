@@ -458,3 +458,52 @@ Prefer many small interfaces over one big “fat” one.
 
  and Even after successful download, didCompleteWithError still runs (with error == nil).
  */
+
+//MARK: BackgroundTasks
+/**
+ - For allowing background task you need to first add the capability of downloadTask in Signing and Capability.
+ - Background processing is for longer tasks and Background fetch is for quicker operations.
+ - Steps for running background task:
+    1. Register handler for task
+    2. Submit a task to the scheduled
+    3. Handle the task when its run
+ 
+ APIs for background task:
+ BGAppRefreshTask:
+ - Apps can use this to silently fetch data from servers before use while fully embracing the idea of courtesy. the system aligns these task with the app usage history.
+ - Frequently used apps have increased chance of being scheduled, guarenteeing fresh content on each launch.
+ 
+ Background Push Notification:
+ - When server sends notification about new content, the system will wake your app at an optimal time to fetch it.
+ - Different from AppRefreshTask as in AppRefresh State we fetch data from servers while in Bg push notification an update is pushed to the device.
+ - Since bg push notification are always considered discretionary as they are used to indicate new remote data.
+ - Sent at low priority
+ - If user removes the app from app switcher then system respects that and notification is not delivered to your app until it is launched again.
+ 
+ BGProcessingTask:
+ - Allows to do task like run ML Model on generated data, database maintenance
+ - register the bgProcessing task at launch time so that the system is made aware of your task immediatley as it goes into the backgroud.
+ - Processing Task also enabels other kind of persuits in order to ful fill the principles that the system uses while running background tasks like - .requiresNetworkConnectivity, or .requiresExternalPower - Efficient, resilient, courtesy, adaptive,minimal
+ 
+ ///BgAppRefresh, Bg Push Notification, BGprocessing task - provides runtime to begin a task in background. But sometime we need a little bit more time and start the task as the app transitions into background.So, for this we have two APIs namely .beginBackroundTask and BGContinuedProcessingTask
+ 
+ beginBackroundTask:
+ - used for task that need not be interrupted in between
+ - used when cleaning up file handles or closing database connections.
+ - wrappig up your code in these APIs calls informs your system that they are handling some crucial work that should not be interrupted.
+ 
+ BGContinuedProcessingTask:
+ - used for executig user generated background task
+ - system even provides UI to show the progress
+ - Continue processing task always start with some explicit action like button tap
+ - Helps achieve a direct goal - like :export and process file, publish social media content, and update accessories.
+ - Avoid automatic workloads like - backups, routine work and maintenance, automatic photo sync. Because then people might not understand the goal of your task. ANd soing unexpected work might cancel your background task. For these needs cosider other APIs
+ - System may cancel the task early so for that we need to provide expiration handler.
+ 
+ NOTE - System gives more priority to app when it is in foreground . So, it might cancel the task when the app is in background depending on the resources available.
+ */
+
+//MARK: Background download
+/**
+ - For allowing the user to download the files while the app is in background, use background urlSession.
+ */

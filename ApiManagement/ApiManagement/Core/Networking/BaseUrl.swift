@@ -6,4 +6,4 @@
 //
 
 import Foundation
-var base_url = "https://api.pexels.com/videos/"
+var base_url = "https://api.pexels.com/v1/videos/"
