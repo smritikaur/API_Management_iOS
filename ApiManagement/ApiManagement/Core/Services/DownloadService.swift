@@ -35,8 +35,8 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     @Published var progress: [String: Float] = [:]
     @Published var isDownloadComplete: [String: Bool] = [:]
     @Published var activeAlert: DownloadAlertType?
-    @Published var resumeData: Data?
     @Published var isDownloading: Set<String> = []
+    var resumeData: Data?
     var downloadTask: URLSessionDownloadTask?
     var urlSession: URLSession?
     
