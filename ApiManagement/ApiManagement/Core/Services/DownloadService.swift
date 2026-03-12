@@ -37,9 +37,8 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     @Published var activeAlert: DownloadAlertType?
     @Published var downloadTask: URLSessionDownloadTask?
     @Published var resumeData: Data?
-    @Published var urlSession: URLSession?
     @Published var isDownloading: Set<String> = []
-    var session: URLSession?
+    var urlSession: URLSession?
     
     override init(){
         super.init()
@@ -50,7 +49,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         let config = URLSessionConfiguration.background(withIdentifier: "MySession")
         config.isDiscretionary = true
         config.sessionSendsLaunchEvents = true
-        session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+        urlSession = URLSession(configuration: config, delegate: self, delegateQueue: nil)
     }
     ///starts downloading a video from a URL
     func downloadVideo(url: URL, videoItemId: String) {
@@ -59,7 +58,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         DispatchQueue.main.async { [weak self] in
             self?.isDownloading.insert(videoItemId)
         }
-        guard let session = session else {
+        guard let session = urlSession else {
             print("session not found")
             return
         }
@@ -70,7 +69,6 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         backgroundTask.taskDescription = videoItemId
         DispatchQueue.main.async { [weak self] in
             self?.downloadTask = backgroundTask
-            self?.urlSession = self?.session
         }
         backgroundTask.resume()
     }
@@ -87,7 +85,6 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         DispatchQueue.main.async { [weak self] in
             downloadTask?.taskDescription = videoItemId
             self?.downloadTask = downloadTask
-            self?.urlSession = urlSession
         }
         print("resumeDownload execution finished")
     }
