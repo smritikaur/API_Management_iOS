@@ -9,17 +9,16 @@ import SwiftUI
 
 @available(iOS 17, *)
 struct HomeTabView: View {
+    @StateObject var homeViewModel: HomeTabViewModel = HomeTabViewModel()
     let buttonText: String
     let navigationTitle: String
-    @StateObject var homeViewModel: HomeTabViewModel = HomeTabViewModel()
-    @StateObject var viewModel: DownloadViewModel = .init()
     
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
                 List {
                     ForEach(homeViewModel.videos){ video in
-                        CellContent(homeViewModel: homeViewModel, viewModel: viewModel, video: video, geometry: geometry)
+                        CellContent(homeViewModel: homeViewModel, video: video, geometry: geometry)
                     }
                 }
                 .navigationTitle(navigationTitle)

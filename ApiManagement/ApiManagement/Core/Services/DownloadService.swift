@@ -39,18 +39,29 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     @Published var resumeData: Data?
     @Published var urlSession: URLSession?
     @Published var isDownloading: Set<String> = []
+    var session: URLSession?
     
+    override init(){
+        super.init()
+        createSession()
+    }
+    
+    func createSession(){
+        let config = URLSessionConfiguration.background(withIdentifier: "MySession")
+        config.isDiscretionary = true
+        config.sessionSendsLaunchEvents = true
+        session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+    }
     ///starts downloading a video from a URL
     func downloadVideo(url: URL, videoItemId: String) {
         print("downloadVideo called again...")
         
-        let config = URLSessionConfiguration.background(withIdentifier: "MySession")
-            config.isDiscretionary = true
-            config.sessionSendsLaunchEvents = true
-           let session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
-  
         DispatchQueue.main.async { [weak self] in
             self?.isDownloading.insert(videoItemId)
+        }
+        guard let session = session else {
+            print("session not found")
+            return
         }
         let backgroundTask = session.downloadTask(with: url)
         backgroundTask.earliestBeginDate = Date().addingTimeInterval(5)
@@ -59,7 +70,7 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
         backgroundTask.taskDescription = videoItemId
         DispatchQueue.main.async { [weak self] in
             self?.downloadTask = backgroundTask
-            self?.urlSession = session
+            self?.urlSession = self?.session
         }
         backgroundTask.resume()
     }
@@ -120,6 +131,24 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
             try data.write(to: destinationURL)
             /// Step 5 - Save to Photos album
             saveVideoToAlbum(videoURL: destinationURL, albumName: "MyAlbum")
+            DispatchQueue.main.async {
+                guard let id = downloadTask.taskDescription else {
+                    return
+                }
+                print("id = \(id)")
+                let received = downloadTask.countOfBytesReceived
+                let expected = downloadTask.countOfBytesExpectedToReceive
+                
+                let progress = expected > 0 ? Float(received) / Float(expected) : 0
+                
+                DispatchQueue.main.async {
+                    self.progress[id] = progress
+                    self.isDownloading.insert(id)
+                    if progress >= 1.0 {
+                        self.isDownloadComplete[id] = true
+                    }
+                }
+            }
         } catch {
             print("Error saving file:", error)
         }
@@ -262,7 +291,12 @@ class DownloadViewModel: NSObject, ObservableObject, URLSessionDownloadDelegate 
     }
     
     func restoreDownloads(){
-        urlSession?.getAllTasks { tasks in
+        print("called restoreDownloads")
+        guard let session = urlSession else {
+            print("urlSession is nil")
+            return
+        }
+        session.getAllTasks { tasks in
             for task in tasks {
                 guard let downloadTask = task as? URLSessionDownloadTask,
                       let id = downloadTask.taskDescription else { continue }

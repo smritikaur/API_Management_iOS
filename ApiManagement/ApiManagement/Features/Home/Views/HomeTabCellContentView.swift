@@ -9,8 +9,8 @@ import SwiftData
 
 @available(iOS 17, *)
 struct CellContent: View {
+    @EnvironmentObject var viewModel: DownloadViewModel
     let homeViewModel: HomeTabViewModel
-    @ObservedObject var viewModel: DownloadViewModel
     let video: VideoItem
     let geometry: GeometryProxy
     @Environment(\.modelContext) var modelContext
